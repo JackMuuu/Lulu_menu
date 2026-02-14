@@ -1,0 +1,250 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Admin - Manage Dishes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 20px; max-width: 1000px; margin: auto; }
+    h1 { margin-bottom: 8px; }
+    form { background:#f9f9f9; padding:12px; border-radius:8px; margin-bottom:20px; }
+    label { display:block; margin:8px 0; }
+    input[type="text"], textarea, select { width:100%; padding:8px; box-sizing:border-box; border-radius:4px; border:1px solid #ddd; }
+    input[type="file"] { margin-top:6px; }
+    button { padding:8px 14px; border-radius:6px; border:0; background:#007bff; color:#fff; cursor:pointer; }
+    button.secondary { background:#6c757d; }
+    .grid { display:grid; grid-template-columns: 1fr; gap:12px; }
+    .dish-list { margin-top: 1rem; }
+    .dish { display:flex; gap:12px; align-items:center; padding:10px; border:1px solid #eee; border-radius:8px; background:#fff; }
+    .dish img { width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd; }
+    .dish .meta { flex:1; }
+    .dish .meta h3 { margin:0 0 4px 0; font-size:16px; }
+    .dish .meta p { margin:0; color:#444; }
+    .dish .actions { display:flex; gap:8px; }
+    .muted { color:#666; font-size:13px; }
+    .preview { margin-top:6px; }
+    .note { font-size:13px; color:#333; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h1>Admin — Manage Dishes</h1>
+<h2 id="formTitle">Add New Dish</h2>
+  <form id="addDishForm" enctype="multipart/form-data">
+    <input type="hidden" name="id" id="dishId" value="" />
+    <label>
+      Name:
+      <input name="name" id="name" required placeholder="Dish name" />
+    </label>
+    <label>
+      Description:
+      <textarea name="description" id="description" rows="3" placeholder="Short description"></textarea>
+    </label>
+    <label>
+      Category:
+      <select name="category" id="category">
+        <option>热菜</option>
+        <option>凉菜</option>
+        <option>汤品</option>
+        <option>主食</option>
+        <option>甜品</option>
+        <option>饮品</option>
+        <option>特别</option>
+      </select>
+    </label>
+    <label>
+      Image:
+      <input name="image" id="image" type="file" accept="image/*" />
+      <div class="preview" id="imagePreview"></div>
+    </label>
+
+    <div style="margin-top:10px;">
+      <button id="submitBtn" type="submit">Add Dish</button>
+      <button id="cancelEditBtn" type="button" class="secondary" style="display:none; margin-left:8px;">Cancel Edit</button>
+    </div>
+    <p class="note">Tip: when editing, leave Image empty to keep the current picture.</p>
+  </form>
+
+  <section class="dish-list" id="dishListContainer">
+    <h2>Existing Dishes</h2>
+    <div id="dishList">Loading…</div>
+  </section>
+
+  <script>
+    // Admin JS: handles add / edit / delete
+    (function () {
+      const listEl = document.getElementById('dishList');
+      const form = document.getElementById('addDishForm');
+      const dishIdInput = document.getElementById('dishId');
+      const nameInput = document.getElementById('name');
+      const descInput = document.getElementById('description');
+      const categoryInput = document.getElementById('category');
+      const imageInput = document.getElementById('image');
+      const imagePreview = document.getElementById('imagePreview');
+      const submitBtn = document.getElementById('submitBtn');
+      const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+      let dishes = []; // cached
+      let editingId = null;
+
+      async function fetchDishes() {
+        try {
+          const res = await fetch('/api/dishes');
+          if (!res.ok) throw new Error('Failed to fetch');
+          dishes = await res.json();
+          renderList();
+        } catch (err) {
+          listEl.innerHTML = '<p class="muted">Could not load dishes. Check server.</p>';
+          console.error(err);
+        }
+      }
+
+      function renderList() {
+        if (!dishes || dishes.length === 0) {
+          listEl.innerHTML = '<p class="muted">No dishes yet.</p>';
+          return;
+        }
+        listEl.innerHTML = '';
+        dishes.forEach(d => {
+          const item = document.createElement('div');
+          item.className = 'dish';
+          const imgSrc = d.image && d.image.length ? d.image : 'https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png';
+          item.innerHTML = `
+            <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(d.name)}" />
+            <div class="meta">
+              <h3>${escapeHtml(d.name)}</h3>
+              <p class="muted">${escapeHtml(d.category)} · <span style="color:#333">${escapeHtml(d._id)}</span></p>
+              <p>${escapeHtml(d.description || '')}</p>
+            </div>
+            <div class="actions">
+              <button data-id="${d._id}" class="editBtn">Edit</button>
+              <button data-id="${d._id}" class="deleteBtn secondary">Delete</button>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+
+        // wire buttons
+        document.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', onEditClick));
+        document.querySelectorAll('.deleteBtn').forEach(b => b.addEventListener('click', onDeleteClick));
+      }
+
+      function escapeHtml(s){ return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+      function onEditClick(e) {
+        const id = e.currentTarget.dataset.id;
+        const d = dishes.find(x => x._id === id || x.id === id);
+        if (!d) return alert('Dish not found');
+        startEdit(d);
+      }
+
+      function onDeleteClick(e) {
+        const id = e.currentTarget.dataset.id;
+        if (!confirm('Delete this dish? This cannot be undone.')) return;
+        deleteDish(id);
+      }
+
+      async function deleteDish(id) {
+        try {
+          const res = await fetch(`/api/dishes/${id}`, { method: 'DELETE' });
+          if (!res.ok) {
+            const j = await res.json().catch(()=>({error:'delete failed'}));
+            return alert('Delete failed: ' + (j.error || res.status));
+          }
+          await fetchDishes();
+          if (editingId === id) cancelEdit();
+        } catch (err) {
+          console.error(err); alert('Delete error');
+        }
+      }
+
+      function startEdit(d) {
+        editingId = d._id;
+        dishIdInput.value = d._id;
+        nameInput.value = d.name || '';
+        descInput.value = d.description || '';
+        categoryInput.value = d.category;
+        imagePreview.innerHTML = d.image ? `<img src="${escapeHtml(d.image)}" style="max-width:120px; max-height:120px; object-fit:cover; border-radius:6px; border:1px solid #ddd;" />` : '<span class="muted">No image</span>';
+        submitBtn.textContent = 'Save Changes';
+        cancelEditBtn.style.display = 'inline-block';
+        document.getElementById('formTitle').textContent = 'Edit Dish';
+      }
+
+      function cancelEdit() {
+        editingId = null;
+        dishIdInput.value = '';
+        form.reset();
+        imagePreview.innerHTML = '';
+        submitBtn.textContent = 'Add Dish';
+        cancelEditBtn.style.display = 'none';
+        document.getElementById('formTitle').textContent = 'Add New Dish';
+      }
+
+      cancelEditBtn.addEventListener('click', cancelEdit);
+
+      // handle file preview locally when picking a file
+      imageInput.addEventListener('change', (ev) => {
+        const f = ev.target.files && ev.target.files[0];
+        if (!f) { imagePreview.innerHTML = ''; return; }
+        const url = URL.createObjectURL(f);
+        imagePreview.innerHTML = `<img src="${url}" style="max-width:120px; max-height:120px; object-fit:cover; border-radius:6px; border:1px solid #ddd;" />`;
+      });
+
+      // Form submit handles both Add and Edit
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.textContent = editingId ? 'Saving...' : 'Adding...';
+
+        try {
+          // If editing, do PUT to /api/dishes/:id with FormData (if image uploaded it will replace)
+          if (editingId) {
+            const fd = new FormData(form); // contains fields and maybe 'image' file
+            // remove id field from FormData if present (server doesn't expect it)
+            fd.delete('id');
+
+            const res = await fetch(`/api/dishes/${editingId}`, {
+              method: 'PUT',
+              body: fd
+            });
+            if (!res.ok) {
+              const j = await res.json().catch(()=>({error:'update failed'}));
+              throw new Error(j.error || 'Update failed');
+            }
+            await fetchDishes();
+            cancelEdit();
+            alert('Dish updated!');
+            return;
+          }
+
+          // Adding new dish (POST)
+          const fd2 = new FormData(form);
+          fd2.delete('id');
+
+          const res = await fetch('/api/dishes', { method: 'POST', body: fd2 });
+          if (!res.ok) {
+            const j = await res.json().catch(()=>({error:'create failed'}));
+            throw new Error(j.error || 'Create failed');
+          }
+          await fetchDishes();
+          form.reset();
+          imagePreview.innerHTML = '';
+          alert('Dish added!');
+        } catch (err) {
+          console.error(err);
+          alert('Error: ' + (err.message || 'unknown'));
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = editingId ? 'Save Changes' : 'Add Dish';
+        }
+      });
+
+      // initial load
+      fetchDishes();
+
+      // expose cancelEdit to global for debugging (optional)
+      window.__admin = { fetchDishes, startEdit, cancelEdit };
+
+    })();
+  </script>
+</body>
+</html>

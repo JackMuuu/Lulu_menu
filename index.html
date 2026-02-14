@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mym Kitchen - Menu</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+  <body>
+
+     <!-- header -->
+    <header class="bg-white">
+      <div class="container header my-3 d-none d-lg-flex">
+        <div class="logo">
+          <a>
+            <i class="fa fa-utensils me-3 text-dark"></i>
+            <h1 class="mb-0 text-dark">摸一摸的厨房</h1>
+          </a>
+        </div>
+        <div class="menus">
+          <ul class="d-flex mb-0">
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#hot-dishes-section"
+                >热菜</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#cold-dishes-section"
+                >凉菜</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#soup-dishes-section"
+                >汤品</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#starch-dishes-section"
+                >主食</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#dessert-dishes-section"
+                >甜品</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#drink-dishes-section"
+                >饮品</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="#special-dishes-section"
+                >特别</a>
+            </li>
+            <li class="list-unstyled py-2">
+              <a class="text-decoration-none text-uppercase p-3 text-dark" href="/admin.html"
+                >管理</a>
+            </li>
+          </ul>
+        </div>
+        <div class="icons">
+          <a class="text-decoration-none" id="searchBtn" href="#">
+            <i class="fa fa-search me-3 text-dark"></i>
+          </a>
+          <a class="text-decoration-none" id="shoppingbutton" href="#">
+            <i class="fa fa-shopping-bag me-3 text-dark"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-around py-3 align-items-center d-lg-none">
+        <div id="hamburger">
+          <i class="fa fa-2x fa-bars me-3 text-dark"></i>
+        </div>
+        <div class="mobile-nav-logo">
+          <div class="logo">
+            <a>
+              <i class="fa fa-utensils me-3 text-dark"></i>
+              <h1 class="mb-0 text-dark">摸一摸的厨房</h1>
+            </a>
+          </div>
+        </div>
+        <div class="mobile-nav-icons">
+          <div class="icons">
+            <a class="text-decoration-none" id="searchBtnMobile" href="#">
+              <i class="fa fa-search me-3 text-dark"></i>
+            </a>
+            <a class="text-decoration-none" id="shoppingbuttonMobile" href="#">
+              <i class="fa fa-shopping-bag me-3 text-dark"></i>
+            </a>
+          </div>
+        </div>
+        <div class="position-fixed w-75 bg-white h-100 top-0 start-0" id="mobile-menu">
+          <div id="hamburger-cross" class="d-flex justify-content-end align-items-center py-2">
+            <i class="fa fa-2x fa-plus me-3 "></i>
+          </div>
+          <div class="menus">
+            <ul class="d-flex flex-column ps-2 mb-0 mt-4">
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#hot-dishes-section"
+                  >热菜</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#cold-dishes-section"
+                  >凉菜</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#soup-dishes-section"
+                  >汤品</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#starch-dishes-section"
+                  >主食</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#dessert-dishes-section"
+                  >甜品</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#drink-dishes-section"
+                  >饮品</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-dark text-decoration-none text-uppercase p-4" href="#special-dishes-section"
+                  >特别</a
+                >
+              </li>
+              <li class="list-unstyled py-2">
+                <a class="text-decoration-none text-uppercase p-4 text-dark" href="/admin.html"
+                    >管理</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+     <!-- search -->
+    <div class="search-bar d-none" id="search-container">
+      <div class="close-btn" id="search-close-btn">
+        <i class="fa fa-close"></i>
+      </div>
+      <div class="search-bar-result-wrapper">
+            <div class="search-bar-wrapper">
+                    <input type="search" id='search-input' placeholder="请输入关键词..." autocomplete="off" />
+                    <button type="button" class="search-button" id="search-submit-btn">
+                    <a href="#"><i class="fa fa-search"></i></a>
+                    </button>
+                    
+            </div>
+            <div id="search-results" class="search-results mt-3 px-2"></div>
+      </div>
+    </div>
+
+
+     <!-- shopping cart -->
+    <div class="shopping-cart">
+      <div class="shopping-cart-header d-flex justify-content-between">
+        <h2>购物车</h2>
+        <i class="fa fa-close"></i>
+      </div>
+      <div class="shopping-cart-body">
+        <!-- 购物车列表自动添加 -->
+      </div>
+      <div class="shopping-cart-footer">
+        
+          <div class="d-flex justify-content-between px-2">
+            <div class="footer-checkout">
+              <div class="anim-layer"></div>
+              <a href="#">下单</a>
+            </div>
+            <div class="footer-shopping">
+              <div class="anim-layer"></div>
+              <a>继续添加菜品</a>
+            </div>
+          </div>
+      </div>
+    </div>
+
+
+
+    <!-- 主界面 -->
+
+    <!-- 大标题 -->
+    <main class="menu-page">
+        <section class="page-banner d-flex align-items-center">
+          <div class="container"> 
+            <div class="row">
+              <div class="banner-content">
+                <h2 class="text-white display-3 text-center" data-aos="fade-right" data-aos-delay="3000">菜 单</h2>
+                <div class="divider" data-aos="fade-up-right" data-aos-delay="3000">
+                    <div class="dot mb-2"></div>
+                </div>
+                <p class="text-center">Chef Mu's</p>
+            </div>
+            </div>
+          </div>
+        </section>
+
+
+
+        <!-- 热菜 -->
+        <section id="hot-dishes-section" class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">热 菜</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id="hot-left-image" class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="热菜"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id="hot-dishes-list-container">
+                    <!-- 热菜菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+
+        <!-- 每日特选 -->
+
+        <section class="chef-choise pt-3 pb-5">
+          <div class="container py-5">
+            <div class="row" data-aos="fade-right">
+              <div class="section-title text-center pb-5">
+                <h5>Chef's Choice</h5>
+                <h2 class="text-white display-6 fw-bold">每日特选</h2>
+              </div>
+            </div>
+            <div class="row">
+                <div class="d-none d-lg-block col-lg-6 d-flex justify-content-center align-items-center" data-aos="fade-right">
+                <!-- 每日特选的第一个菜的图片 -->
+                    <div id="chef-left-image" class="pb-5 pb-lg-0 text-center">
+                        <img class="img-fluid" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="Chef's Choice">
+                    </div>
+                </div>
+
+              <!-- 每日特选菜单列表 -->
+              <div class="col-12 col-lg-6" data-aos="fade-left">
+                <div class="chef-choise-slider ps-3" id="chef-daily-list">
+                  <!-- 每日特选菜单会自动生成 -->
+                </div>
+                  <div class="chef-choise-icons ps-4 mt-3 mt-lg-0">
+                    <i class="fa fa-chevron-up" aria-hidden="true"></i>
+                    <i class="fa fa-chevron-down ms-4" aria-hidden="true"></i>
+                  </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- 凉菜 -->
+        <section id="cold-dishes-section" class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">凉 菜</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+                
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id='cold-left-image' class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="冷菜"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id="cold-dishes-list-container">
+                    <!-- 冷菜菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+
+        <!-- 汤品 -->
+        <section id="soup-dishes-section" class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">汤 品</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+              
+
+
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id="soup-left-image" class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="汤品"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id="soup-dishes-list-container">
+                    <!-- 汤品菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+
+
+
+        <!-- 主食 -->
+        <section id='starch-dishes-section' class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">主 食</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+              
+
+
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id='starch-left-image' class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="主食"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id='starch-dishes-list-container'>
+                    <!-- 主食菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+
+
+        <!-- 甜品 -->
+        <section id='dessert-dishes-section' class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">甜 品</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+              
+
+
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id='dessert-left-image' class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="甜品"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id='dessert-dishes-list-container'>
+                    <!-- 甜品菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+
+
+        <!-- 饮品 -->
+        <section id='drink-dishes-section'class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">饮 品</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+              
+
+
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id='drink-left-image' class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="饮品"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id='drink-dishes-list-container'>
+                    <!-- 饮品菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+        <!-- 特别 -->
+        <section id="special-dishes-section" class="our-menu pt-5 my-5">
+            <div class="container">
+                <div class="row" data-aos="fade-right">
+                    <h2 class="text-center display-6 fw-bold">特 别</h2>
+                    <div class="menu-line d-flex justify-content-center align-items-center">
+                        <span></span>
+                    </div>
+                </div>
+
+
+              </div>
+              <div id="our-menus" class="slider" data-aos="fade-up">
+                <div>
+                  <div class="row my-5 py-3">
+                  <div class="col-lg-5">
+                    <div id="special-left-image" class="pb-5 pb-lg-0 d-flex justify-content-center">
+                      <!-- 更改图片 -->
+                      <img width="80%" src="https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png" alt="特别"> 
+                    </div>
+                  </div>
+                  <div class="col-lg-7" id="special-dishes-list-container">
+                    <!-- 特别菜单会自动添加进来 -->
+                  </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+        </section>
+
+
+
+
+        
+
+    </main>
+
+    <a href="#" id="back-to-top">
+      <i class="fa-solid fa-angles-up"></i>
+    </a>
+    
+
+
+
+
+
+
+
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="footer-content col-xl-8  px-4">
+            <div class="row">
+              <div class="col-lg-6 px-0">
+                <div class="logo" data-aos="fade-down-right">
+                  <a>
+                    <i class="fa fa-utensils me-3"></i>
+                    <h1 class="mb-0">摸一摸的厨房</h1>
+                  </a>
+                </div>
+              </div>
+              <div data-aos="fade-down" class="col-lg-6 pt-4 pt-lg-0 d-flex align-items-center justify-content-start justify-content-lg-end">
+                
+              </div>
+            </div>
+            <div class="row pt-5 content-desc" data-aos="fade-right">
+              <p class="px-0">欢迎来到摸一摸的厨房。这里没有米其林星星，只有吃完会‘摸着肚子’说好撑的快乐。</p>
+            </div>
+            <div class="row" data-aos="fade-right">
+              <div class="d-flex flex-column flex-lg-row px-0 justify-content-between">
+                <div class="location d-flex align-items-center pe-2 py-3">
+                  <i class="fa-solid fa-location-dot text-white fa-2x border-bottom pb-2"></i>
+                  <div class="ps-3">
+                    <p class="mb-0">
+                      2801 Sunset Pl <br>
+                      Los Angeles, CA 90005
+                    </p>
+                  </div>
+                </div>
+                <div class="location d-flex align-items-center pe-2 py-3">
+                  <i class="fa-solid fa-mobile text-white fa-2x border-bottom pb-2"></i>
+                  <div class="ps-3">
+                    <p class="mb-0">
+                      (617)-901-5953 <br>
+                      (617)-901-5953
+                    </p>
+                  </div>
+                </div>
+                <div class="location d-flex align-items-center pe-2 py-3">
+                  <i class="fa-solid fa-envelope text-white fa-2x border-bottom pb-2"></i>
+                  <div class="ps-3">
+                    <p class="mb-0">
+                      ymu055@gmail.com <br>
+                      jackmou0505@gmail.com
+                    </p>
+                  </div>
+                </div>
+            </div>
+            </div>
+          </div>
+          
+        </div>
+        <div class="row">
+          <p class="text-center pt-4 mt-3 pt-lg-0">&copy; <span id="copyrightCurrentYear"></span> <b> 摸一摸的厨房.</b> All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Persistent modal for checkout notification -->
+    <div id="checkout-modal" class="persistent-modal" aria-hidden="true" role="dialog" tabindex="-1">
+    <div class="persistent-modal-backdrop" id="checkout-modal-backdrop"></div>
+    <div class="persistent-modal-panel" role="document" aria-modal="true">
+        <h3 id="checkout-modal-title">下单结果</h3>
+        <p id="checkout-modal-message">处理中…</p>
+        <div class="persistent-modal-actions">
+        <button id="checkout-modal-done" class="btn-done">Done</button>
+        </div>
+    </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="./assets/js/script.js"></script>
+    <!-- EmailJS SDK (client-side) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>emailjs.init('83UuhOSzwxY-DlM3j');</script>
+</body>
+</html>
