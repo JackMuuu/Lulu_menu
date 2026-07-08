@@ -2346,3 +2346,47 @@ footer p {
     min-width: 0;
   }
 }
+
+
+
+
+
+/* index.html page right top corner profile icon css */
+.topbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.topbar-icon i {
+  font-size: 22px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .icons {
+    gap: 8px;
+  }
+
+  .icons > a > i {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .icons {
+    gap: 6px;
+  }
+
+  .icons > a > i {
+    font-size: 15px;
+  }
+}

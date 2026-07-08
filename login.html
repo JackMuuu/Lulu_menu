@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Menu</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f5f2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-card {
+      width: min(420px, 92vw);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 32px;
+    }
+    .auth-card h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .auth-card p {
+      margin: 0 0 24px;
+      color: #666;
+    }
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: #8b5cf6;
+    }
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #111827;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      opacity: 0.92;
+    }
+    .muted-link {
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      color: #6b7280;
+      text-decoration: none;
+    }
+    .muted-link:hover {
+      text-decoration: underline;
+    }
+    .msg {
+      margin-top: 14px;
+      font-size: 14px;
+    }
+    .msg.error {
+      color: #b91c1c;
+    }
+    .msg.success {
+      color: #047857;
+    }
+  </style>
+</head>
+<body>
+  <main class="auth-card">
+    <h1>Welcome back</h1>
+    <p>Sign in to view your orders and reviews.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password" />
+      </div>
+
+      <button type="submit" class="btn">Sign In</button>
+      <div id="message" class="msg"></div>
+    </form>
+
+    <a class="muted-link" href="signup.html">No account yet? Sign up</a>
+  </main>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      message.className = 'msg';
+
+      const payload = {
+        email: form.email.value.trim(),
+        password: form.password.value
+      };
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          message.textContent = data.error || 'Login failed';
+          message.classList.add('error');
+          return;
+        }
+
+        message.textContent = 'Login successful. Redirecting...';
+        message.classList.add('success');
+
+        setTimeout(() => {
+          window.location.href = '/profile.html';
+        }, 700);
+      } catch (err) {
+        message.textContent = 'Network error. Please try again.';
+        message.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>

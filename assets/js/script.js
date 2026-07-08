@@ -900,56 +900,91 @@ checkoutBtn && checkoutBtn.addEventListener('click', async (e) => {
     return;
   }
 
-  // Helper: order id in YYYYMMDD using America/Los_Angeles timezone
-  function getOrderIdYYYYMMDD() {
-    // produce "YYYY-MM-DD" in LA timezone and remove dashes
-    const laDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' }); // "YYYY-MM-DD"
-    return laDate.replace(/-/g, '');
-  }
+  // 1) make sure user is signed in
+  try {
+    const meRes = await fetch('/api/auth/me', {
+      credentials: 'include'
+    });
 
-  // Build EmailJS orders array from cart
-  // The template expects {{#orders}} ... {{/orders}} and uses image_url, name, units, price
-  const orders = cart.map(item => ({
-    name: item.name || '',
-    units: item.description || '',      // your "units" maps to description
-    price: 1,                            // always 1 per your placeholder
-    image_url: item.image || ''          // Cloudinary URL or fallback
-  }));
-
-  const order_id = getOrderIdYYYYMMDD();
-
-  // You may include other high-level fields if your EmailJS template uses them:
-  const templateParams = {
-    order_id,               // e.g. "20260213"
-    orders,                 // EmailJS supports arrays when you use {{#orders}} in template
-    total_items: cart.length
-    // add more fields your template expects, e.g. customer_name, customer_phone, etc.
-  };
-
-  // show modal: sending...
-  openCheckoutModal('正在发送订单，请稍候…');
-
-  // Verify EmailJS loaded and init
-  if (!window.emailjs || typeof emailjs.send !== 'function') {
-    openCheckoutModal('EmailJS SDK 未加载或未初始化，请稍后再试');
+    if (!meRes.ok) {
+      openCheckoutModal('请先登录再下单');
+      setTimeout(() => {
+        window.location.href = '/login.html';
+      }, 1200);
+      return;
+    }
+  } catch (err) {
+    openCheckoutModal('无法验证登录状态，请稍后重试');
     return;
   }
 
+  // 2) order number = today's date only
+  function getOrderIdYYYYMMDD() {
+    const laDate = new Date().toLocaleDateString('en-CA', {
+      timeZone: 'America/Los_Angeles'
+    });
+    return laDate.replace(/-/g, '');
+  }
+
+  const orderNo = getOrderIdYYYYMMDD();
+
+
+  const items = cart.map(item => ({
+  dishId: item._id,
+  quantity: 1
+}));
+
+openCheckoutModal('正在保存订单，请稍候…');
+
+
+try {
+  const orderRes = await fetch('/api/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      items
+    })
+  });
+
+  const orderData = await orderRes.json();
+
+  if (!orderRes.ok) {
+    throw new Error(orderData.error || '保存订单失败');
+  }
+
+  const orders = cart.map(item => ({
+    name: item.name || '',
+    units: item.description || '',
+    price: 1,
+    image_url: item.image || ''
+  }));
+
+  const templateParams = {
+    order_id: orderData.order?.orderNo || '',
+    orders,
+    total_items: cart.length
+  };
+
+  if (!window.emailjs || typeof emailjs.send !== 'function') {
+    throw new Error('EmailJS SDK 未加载');
+  }
 
   const SERVICE_ID = 'service_5nzocu9';
   const TEMPLATE_ID = 'template_881vabm';
 
-  try {
-    await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
-    // success
-    cart.length = 0;     // clear cart only after successful send
-    renderCart();
-    openCheckoutModal('下单成功 — 已发送订单邮件（点击 Done 关闭）');
-  } catch (err) {
-    console.error('EmailJS send error', err);
-    // show error message (do not clear cart)
-    openCheckoutModal('发送失败：请稍后重试或检查 EmailJS 配置');
-  }
+  await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
+
+  cart.length = 0;
+  renderCart();
+
+  openCheckoutModal('下单成功 — 订单已保存并已发送邮件（点击 Done 关闭）');
+} catch (err) {
+  console.error('Checkout error', err);
+  openCheckoutModal(err.message || '下单失败：请稍后重试');
+}
 });
 
 // small helper to escape HTML in descriptions

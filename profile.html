@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mym Kitchen - Profile</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+
+    <style>
+      .profile-page {
+        position: relative;
+        padding-top: 130px;
+        padding-bottom: 70px;
+        min-height: 100vh;
+        background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+      }
+
+      .profile-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .profile-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: var(--primary-color);
+      }
+
+      .profile-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 10px 0 8px;
+      }
+
+      .profile-avatar {
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(229, 97, 47, 0.12);
+        color: var(--primary-color);
+        font-size: 34px;
+        margin-bottom: 14px;
+      }
+
+      .profile-hero h2 {
+        margin-bottom: 6px;
+      }
+
+      .profile-hero p {
+        margin-bottom: 0;
+        color: #6b7280;
+      }
+
+      .profile-actions {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+        margin-bottom: 18px;
+      }
+
+      .profile-actions .btn {
+        border-radius: 999px;
+        padding: 10px 18px;
+        min-width: 140px;
+      }
+
+      .profile-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 20px 0 24px;
+      }
+
+      .profile-tab-btn {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #111827;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .profile-tab-btn.active {
+        background: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-color);
+      }
+
+      .profile-panel {
+        border: 1px solid #ececec;
+        border-radius: 18px;
+        padding: 18px;
+        background: #fafafa;
+      }
+
+      .profile-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .profile-item {
+        background: #fff;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #ededed;
+      }
+
+      .profile-item h5 {
+        margin-bottom: 8px;
+        color: #111827;
+        font-family: "Nunito", sans-serif;
+        font-weight: 700;
+      }
+
+      .profile-item p {
+        margin-bottom: 6px;
+        color: #4b5563;
+      }
+
+      .profile-muted {
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .profile-empty {
+        text-align: center;
+        color: #6b7280;
+        padding: 18px 0;
+      }
+
+      .profile-error {
+        color: #b91c1c;
+        text-align: center;
+        margin-top: 12px;
+      }
+
+      .profile-top-links {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+
+      .profile-top-links a {
+        text-decoration: none;
+      }
+
+      .profile-link-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 10px 16px;
+        min-width: 140px;
+      }
+
+      .profile-link-btn.secondary {
+        background: #fff;
+        color: #111827;
+        border: 1px solid #e5e7eb;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 576px) {
+        .profile-page {
+          padding-top: 110px;
+        }
+
+        .profile-card {
+          padding: 20px 16px;
+          border-radius: 18px;
+        }
+
+        .profile-actions .btn,
+        .profile-link-btn {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .profile-top-links {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .profile-top-links a {
+          width: 100%;
+        }
+      }
+
+      .order-first-line {
+        margin-bottom: 6px;
+      }
+
+      .show-all-toggle {
+        margin-left: 8px;
+        font-size: 13px;
+        color: var(--primary-color);
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .hidden-order-items {
+        display: none;
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+
+      .hidden-order-items.expanded {
+        display: block;
+      }
+
+      .order-delete-btn {
+        border: none;
+        background: #e5612f;
+        color: #fff;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        font-family: "Nunito", sans-serif;
+        font-weight: 600;
+      }
+
+      .order-delete-btn:hover {
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- header -->
+    <header class="bg-white">
+      <div class="container header my-3 d-none d-lg-flex">
+        <!-- back to main page button -->
+        <div class="profile-top-links">
+                <a href="/index.html" class="btn btn-secondary profile-link-btn">← Back to Menu</a>
+        </div>
+
+        <div class="logo">
+          <a href="/index.html">
+            <i class="fa fa-utensils me-3 text-dark"></i>
+            <h1 class="mb-0 text-dark">摸一摸的厨房</h1>
+          </a>
+        </div>
+        <!-- sign out button -->
+        <div class="profile-top-links">
+                <a href="#" id="signOutBtn" class="btn profile-link-btn">Sign Out</a>
+        </div>
+
+      </div>
+
+      <div class="d-flex justify-content-around py-3 align-items-center d-lg-none">
+         <!-- back to main page button -->
+        <div class="profile-top-links">
+                <a href="/index.html" class="btn btn-secondary profile-link-btn">← Back to Menu</a>
+        </div>
+
+        <div class="mobile-nav-logo">
+          <div class="logo">
+            <a href="/index.html">
+              <i class="fa fa-utensils me-3 text-dark"></i>
+              <h1 class="mb-0 text-dark">摸一摸的厨房</h1>
+            </a>
+          </div>
+        </div>
+        <!-- sign out button -->
+        <div class="profile-top-links">
+                <a href="#" id="signOutBtn" class="btn profile-link-btn">Sign Out</a>
+        </div>
+
+        
+      </div>
+    </header>
+
+    <main class="profile-page">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12 col-xl-9">
+            <div class="profile-card" data-aos="fade-up">
+              <div class="profile-hero">
+                <div class="profile-avatar">
+                  <i class="fa fa-user"></i>
+                </div>
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileEmail"></p>
+              </div>
+
+              <div class="profile-tabs">
+                <button class="profile-tab-btn active" data-tab="orders">Order History</button>
+                <button class="profile-tab-btn" data-tab="reviews">Reviews</button>
+              </div>
+
+              <div class="profile-panel">
+                <section id="ordersPanel">
+                  <div id="ordersList" class="profile-list"></div>
+                  <div id="ordersEmpty" class="profile-empty hidden">You do not have any orders yet.</div>
+                </section>
+
+                <section id="reviewsPanel" class="hidden">
+                  <div id="reviewsList" class="profile-list"></div>
+                  <div id="reviewsEmpty" class="profile-empty hidden">You do not have any reviews yet.</div>
+                </section>
+
+                <div id="profileError" class="profile-error"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="./assets/js/script.js"></script>
+
+    <script>
+      AOS.init();
+
+      const profileName = document.getElementById('profileName');
+      const profileEmail = document.getElementById('profileEmail');
+      const signOutBtn = document.getElementById('signOutBtn');
+      const profileError = document.getElementById('profileError');
+
+      const ordersPanel = document.getElementById('ordersPanel');
+      const reviewsPanel = document.getElementById('reviewsPanel');
+      const ordersList = document.getElementById('ordersList');
+      const reviewsList = document.getElementById('reviewsList');
+      const ordersEmpty = document.getElementById('ordersEmpty');
+      const reviewsEmpty = document.getElementById('reviewsEmpty');
+
+      const tabButtons = document.querySelectorAll('.profile-tab-btn');
+
+      function formatDate(value) {
+        if (!value) return '';
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? '' : d.toLocaleString();
+      }
+
+      function switchTab(tab) {
+        const isOrders = tab === 'orders';
+        ordersPanel.classList.toggle('hidden', !isOrders);
+        reviewsPanel.classList.toggle('hidden', isOrders);
+
+        tabButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+      }
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      ordersList.addEventListener('click', async (e) => {
+        const deleteBtn = e.target.closest('.order-delete-btn');
+        if (!deleteBtn) return;
+
+        const orderId = deleteBtn.dataset.orderId;
+        if (!orderId) return;
+
+        const ok = confirm('Delete this order from your history?');
+        if (!ok) return;
+
+        try {
+          const res = await fetch(`/api/orders/${orderId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || 'Failed to delete order');
+          }
+
+          const card = deleteBtn.closest('.profile-item');
+          if (card) card.remove();
+
+          if (!ordersList.querySelector('.profile-item')) {
+            ordersEmpty.classList.remove('hidden');
+          }
+        } catch (err) {
+          alert(err.message || 'Could not delete order');
+        }
+      });
+
+
+      function renderOrders(orders) {
+        ordersList.innerHTML = '';
+
+        if (!orders.length) {
+          ordersEmpty.classList.remove('hidden');
+          return;
+        }
+
+        ordersEmpty.classList.add('hidden');
+
+        orders.forEach((order) => {
+          const items = Array.isArray(order.items) ? order.items : [];
+          const firstItem = items[0];
+          const hasMore = items.length > 1;
+
+          const itemListHtml = items
+            .map((item) => {
+              const name = item.nameSnapshot || 'Dish';
+              const qty = item.quantity || 1;
+              return `<li>${name} × ${qty}</li>`;
+            })
+            .join('');
+
+          const el = document.createElement('div');
+          el.className = 'profile-item';
+          el.dataset.orderId = order._id;
+
+          el.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <h5>Order ${order.orderNo || ''}</h5>
+                <p class="profile-muted">${formatDate(order.createdAt)}</p>
+              </div>
+              <button type="button" class="order-delete-btn" data-order-id="${order._id}">
+                Delete
+              </button>
+            </div>
+
+            <p class="order-first-line">
+              ${firstItem ? `${firstItem.nameSnapshot || 'Dish'} × ${firstItem.quantity || 1}` : 'No items'}
+              ${hasMore ? `<span class="show-all-toggle">show all</span>` : ''}
+            </p>
+
+            <ul class="order-all-items hidden-order-items">${itemListHtml}</ul>
+          `;
+
+          const toggle = el.querySelector('.show-all-toggle');
+          const list = el.querySelector('.hidden-order-items');
+
+          if (toggle && list) {
+            toggle.addEventListener('click', () => {
+              list.classList.toggle('expanded');
+              toggle.textContent = list.classList.contains('expanded') ? 'hide' : 'show all';
+            });
+          }
+
+        ordersList.appendChild(el);
+        });
+      }
+
+      function renderReviews(reviews) {
+        reviewsList.innerHTML = '';
+
+        if (!reviews.length) {
+          reviewsEmpty.classList.remove('hidden');
+          return;
+        }
+
+        reviewsEmpty.classList.add('hidden');
+
+        reviews.forEach((review) => {
+          const el = document.createElement('div');
+          el.className = 'profile-item';
+          el.innerHTML = `
+            <h5>Review</h5>
+            <p class="profile-muted">${formatDate(review.createdAt)}</p>
+            <p>Rating: ${review.rating || '-'} / 5</p>
+            <p>${review.comment || ''}</p>
+          `;
+          reviewsList.appendChild(el);
+        });
+      }
+
+      async function loadProfile() {
+        profileError.textContent = '';
+
+        try {
+          const meRes = await fetch('/api/auth/me', {
+            credentials: 'include'
+          });
+
+          if (!meRes.ok) {
+            window.location.href = '/login.html';
+            return;
+          }
+
+          const meData = await meRes.json();
+          profileName.textContent = meData.user?.username || 'Profile';
+          profileEmail.textContent = meData.user?.email || '';
+
+          const [ordersRes, reviewsRes] = await Promise.all([
+            fetch('/api/profile/orders', { credentials: 'include' }),
+            fetch('/api/profile/reviews', { credentials: 'include' })
+          ]);
+
+          const ordersData = await ordersRes.json();
+          const reviewsData = await reviewsRes.json();
+
+          renderOrders(ordersData.orders || []);
+          renderReviews(reviewsData.reviews || []);
+        } catch (err) {
+          profileError.textContent = 'Could not load profile. Please try again.';
+        }
+      }
+
+      signOutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+          });
+        } finally {
+          window.location.href = '/login.html';
+        }
+      });
+
+      loadProfile();
+    </script>
+  </body>
+</html>
