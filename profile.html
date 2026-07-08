@@ -186,8 +186,8 @@
         align-items: center;
         justify-content: center;
         border-radius: 999px;
-        padding: 10px 16px;
-        min-width: 140px;
+        padding: 10px 14px;
+        min-width: 80px;
       }
 
       .profile-link-btn.secondary {
@@ -198,6 +198,14 @@
 
       .hidden {
         display: none !important;
+      }
+
+      /* two buttons after the header */
+      .profile-top-actions{
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:20px;
       }
 
       @media (max-width: 576px) {
@@ -249,19 +257,32 @@
       }
 
       .order-delete-btn {
-        border: none;
-        background: #e5612f;
-        color: #fff;
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-size: 13px;
-        cursor: pointer;
-        font-family: "Nunito", sans-serif;
-        font-weight: 600;
+          width: 34px;
+          height: 34px;
+
+          border: none;
+          border-radius: 50%;
+
+          background: #f5f5f5;
+          color: #666;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          cursor: pointer;
+
+          transition: all 0.2s ease;
       }
 
       .order-delete-btn:hover {
-        opacity: 0.9;
+          background: #e5612f;
+          color: white;
+          transform: rotate(90deg);
+      }
+
+      .order-delete-btn i {
+          font-size: 14px;
       }
     </style>
   </head>
@@ -270,10 +291,7 @@
     <!-- header -->
     <header class="bg-white">
       <div class="container header my-3 d-none d-lg-flex">
-        <!-- back to main page button -->
-        <div class="profile-top-links">
-                <a href="/index.html" class="btn btn-secondary profile-link-btn">← Back to Menu</a>
-        </div>
+        
 
         <div class="logo">
           <a href="/index.html">
@@ -281,18 +299,12 @@
             <h1 class="mb-0 text-dark">摸一摸的厨房</h1>
           </a>
         </div>
-        <!-- sign out button -->
-        <div class="profile-top-links">
-                <a href="#" id="signOutBtn" class="btn profile-link-btn">Sign Out</a>
-        </div>
+        
 
       </div>
 
       <div class="d-flex justify-content-around py-3 align-items-center d-lg-none">
-         <!-- back to main page button -->
-        <div class="profile-top-links">
-                <a href="/index.html" class="btn btn-secondary profile-link-btn">← Back to Menu</a>
-        </div>
+        
 
         <div class="mobile-nav-logo">
           <div class="logo">
@@ -302,16 +314,27 @@
             </a>
           </div>
         </div>
-        <!-- sign out button -->
-        <div class="profile-top-links">
-                <a href="#" id="signOutBtn" class="btn profile-link-btn">Sign Out</a>
-        </div>
+        
 
         
       </div>
     </header>
 
     <main class="profile-page">
+
+      <div class="profile-top-actions">
+        <!-- back to main page button -->
+        <div class="profile-top-links">
+                <a href="/index.html" class="btn btn-secondary profile-link-btn">← Back to Menu</a>
+        </div>
+
+        <!-- sign out button -->
+        <div class="profile-top-links">
+                <a href="#" id="signOutBtn" class="btn profile-link-btn">Sign Out</a>
+        </div>
+      </div>
+
+
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-12 col-xl-9">
@@ -462,8 +485,14 @@
                 <h5>Order ${order.orderNo || ''}</h5>
                 <p class="profile-muted">${formatDate(order.createdAt)}</p>
               </div>
-              <button type="button" class="order-delete-btn" data-order-id="${order._id}">
-                Delete
+              <button
+                type="button"
+                class="order-delete-btn"
+                data-order-id="${order._id}"
+                title="Delete Order"
+                aria-label="Delete Order"
+              >
+                <i class="fa fa-times"></i>
               </button>
             </div>
 
