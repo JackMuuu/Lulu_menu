@@ -455,6 +455,8 @@ function renderCategory(shortKey, chineseName, items, fallback) {
     thumb.style.borderRadius = '6px';
     thumb.style.border = '1px solid #ddd';
     thumb.style.cursor = 'pointer';
+    thumb.classList.add('dish-clickable');
+    thumb.dataset.id = d._id;
     // attach data for click-to-swap
     thumb.dataset.shortKey = shortKey;
     thumb.dataset.src = thumb.src;
@@ -464,6 +466,9 @@ function renderCategory(shortKey, chineseName, items, fallback) {
     const txt = document.createElement('div');
     const h5 = document.createElement('h5');
     h5.textContent = d.name || '无名菜';
+    h5.classList.add('dish-clickable');
+    h5.dataset.id = d._id;
+    h5.style.cursor = 'pointer';
     h5.style.margin = '0';
     const p = document.createElement('p');
     p.textContent = d.description || '';
@@ -522,6 +527,51 @@ function showLoadErrorsForAll() {
     if (el) el.innerHTML = '<p class="muted">无法加载菜品</p>';
   });
 }
+
+
+
+// global click handler
+document.addEventListener('click', async function (e) {
+  const target = e.target.closest('.dish-clickable');
+  if (!target) return;
+
+  const dishId = target.dataset.id;
+  if (!dishId) return;
+
+  try {
+    const res = await fetch('/api/dishes/' + dishId);
+    if (!res.ok) return;
+
+    const dish = await res.json();
+
+    if (dishDetailImage) {
+      dishDetailImage.src = dish.image || 'https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png';
+      dishDetailImage.alt = dish.name || 'Dish';
+    }
+
+    if (dishDetailName) {
+      dishDetailName.textContent = dish.name || '';
+    }
+
+    if (dishDetailDescription) {
+      dishDetailDescription.textContent = dish.description || '';
+    }
+
+    if (dishDetailReviewsList) {
+      dishDetailReviewsList.innerHTML = '';
+    }
+
+    if (dishDetailEmpty) {
+      dishDetailEmpty.style.display = 'block';
+    }
+
+    openDishDetail();
+  } catch (err) {
+    console.error('Failed to load dish detail', err);
+  }
+});
+
+
 
 
 
@@ -586,6 +636,9 @@ async function renderDailySpecials() {
       left.className = 'item-left d-flex flex-row';
 
       const img = document.createElement('img');
+      img.classList.add('dish-clickable');
+      img.dataset.id = d._id;
+      img.style.cursor = 'pointer';
       img.className = 'rounded-circle';
       img.width = 70; img.height = 70;
       img.alt = d.name || 'dish';
@@ -597,6 +650,9 @@ async function renderDailySpecials() {
       const h5 = document.createElement('h5');
       h5.className = 'text-white';
       h5.textContent = d.name || '无名菜';
+      h5.classList.add('dish-clickable');
+      h5.dataset.id = d._id;
+      h5.style.cursor = 'pointer';
       const p = document.createElement('p');
       p.className = 'mb-0';
       p.textContent = d.description || '';
@@ -771,6 +827,9 @@ function renderSearchResults(items = []) {
     thumb.src = d.image || 'https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png';
     thumb.alt = d.name || 'dish';
     thumb.className = 'search-thumb me-3';
+    thumb.classList.add('dish-clickable');
+    thumb.dataset.id = d._id;
+    thumb.style.cursor = 'pointer';
 
     const meta = document.createElement('div');
     meta.style.flex = '1';
@@ -778,6 +837,9 @@ function renderSearchResults(items = []) {
     const title = document.createElement('div');
     title.className = 'fw-semibold';
     title.textContent = d.name || '无名菜';
+    title.classList.add('dish-clickable');
+    title.dataset.id = d._id;
+    title.style.cursor = 'pointer';
 
     const desc = document.createElement('div');
     desc.className = 'text-muted small mb-0';
@@ -805,6 +867,35 @@ function renderSearchResults(items = []) {
   });
 }
 
+// ====================== floating detail page ======================
+const dishDetailPanel = document.querySelector('.dish-detail-panel');
+const dishDetailClose = document.querySelector('.dish-detail-close');
+const dishDetailImage = document.querySelector('.dish-detail-image');
+const dishDetailName = document.querySelector('.dish-detail-name');
+const dishDetailDescription = document.querySelector('.dish-detail-description');
+const dishDetailReviewsList = document.querySelector('.dish-detail-reviews-list');
+const dishDetailEmpty = document.querySelector('.dish-detail-empty');
+
+function openDishDetail() {
+  if (!dishDetailPanel) return;
+  dishDetailPanel.classList.add('open');
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDishDetail() {
+  if (!dishDetailPanel) return;
+  dishDetailPanel.classList.remove('open');
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+}
+
+dishDetailClose?.addEventListener('click', (e) => {
+  e.preventDefault();
+  closeDishDetail();
+});
+
+
 // wire click-to-search behavior ONLY
 if (searchSubmitBtn) {
   searchSubmitBtn.addEventListener('click', (e) => {
@@ -812,6 +903,12 @@ if (searchSubmitBtn) {
     performSearch(searchInput ? searchInput.value : '');
   });
 }
+
+
+
+
+
+
 
 
 
