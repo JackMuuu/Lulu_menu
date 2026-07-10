@@ -1,4 +1,10 @@
+html, body {
+  overflow-x: clip;
+}
+
+
 /* Heebo Fonts */
+
 @font-face {
   font-family: "Heebo";
   src: url("./../fonts/Heebo/Heebo-VariableFont_wght.ttf") format("truetype");
@@ -1175,16 +1181,16 @@ header.scrolled {
   font-size: 12px;
 }
 
-/* .our-menu .item-wrapper .item-left h5 {
+.our-menu .item-wrapper .item-left h5 {
   position: relative;
   display: inline-block;
   padding-right: 14px;
   max-width: 100%;
-} */
+}
 
 
 
-.our-menu .item-wrapper .item-left h5::after,
+/* .our-menu .item-wrapper .item-left h5::after,
 .lunch-time .item-wrapper .item-left h5::after,
 .chef-choise .item-wrapper .item-left h5::after {
   content: "";
@@ -1193,7 +1199,45 @@ header.scrolled {
   border-bottom: 1px dotted #616f7d;
   bottom: 6px;
   left: 102%;
+} */
+
+
+our-menu .item-wrapper .item-left h5::after,
+.lunch-time .item-wrapper .item-left h5::after,
+.chef-choise .item-wrapper .item-left h5::after {
+  content: "";
+
+  position: absolute;
+
+  top: 50%;
+
+  left: calc(100% + 12px);
+
+  width: clamp(60px, 18vw, 220px);
+
+  border-bottom: 1px dotted #616f7d;
+
+  transform: translateY(-50%);
 }
+
+
+@media (max-width: 768px) {
+
+  .our-menu .item-wrapper .item-left h5::after {
+
+    display: none;
+
+  }
+
+}
+
+
+
+
+
+
+
+
 
 .our-menu .item-wrapper .item-right .item-price,
 .our-menu .item-wrapper .item-right .price-symbol,

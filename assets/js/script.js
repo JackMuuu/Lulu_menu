@@ -929,12 +929,14 @@ const checkoutModalBackdrop = document.getElementById('checkout-modal-backdrop')
 
 // Open cart
 function openCart() {
-  shoppingCart.style.right = "0";
+  // shoppingCart.style.right = "0";
+  shoppingCart.classList.add('open');
 }
 
 // Close cart
 function closeCart() {
-  shoppingCart.style.right = "-100vw";
+  // shoppingCart.style.right = "-100vw";
+  shoppingCart.classList.remove('open');
 }
 
 shoppingbtn?.addEventListener('click', e => {
