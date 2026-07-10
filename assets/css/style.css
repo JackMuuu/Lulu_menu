@@ -1,4 +1,5 @@
 html, body {
+  max-width: 100%;
   overflow-x: clip;
 }
 
@@ -297,6 +298,8 @@ button,
   background-color: var(--heading-color);
   color: #fff;
   transition: all 0.3s ease-in-out;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 
 .card {
@@ -467,6 +470,49 @@ header.scrolled {
   color: var(--text-color-white);
 }
 
+
+/* deal with mobile view header overflow issue */
+.mobile-topbar {
+  width: 100%;
+  max-width: 100vw;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.mobile-nav-logo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-nav-logo .logo a {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.mobile-nav-logo .logo h1 {
+  font-size: clamp(18px, 4.5vw, 24px);
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-nav-icons {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+
+
+
+
+
+
+
 /* Search bar */
 
 .search-bar {
@@ -595,14 +641,25 @@ header.scrolled {
 
 .shopping-cart {
   position: fixed;
+  top: 0;
+  right: 0;
   width: 450px;
+  max-width: 100vw;
   height: 100vh;
-  right: -100vw;
   background-color: white;
   box-shadow: 7px 5px 15px -4px rgba(0, 0, 0, 0.75);
   z-index: 9;
-  transition: right 0.5s ease-in-out;
+  
+  transform: translateX(100%);
+  transition: transform 0.5s ease-in-out;
 }
+.shopping-cart.open {
+
+  transform: translateX(0);
+
+}
+
+
 
 .shopping-cart-header {
   padding: 16px 18px;

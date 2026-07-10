@@ -272,7 +272,7 @@ shoppingbtnMobile.addEventListener('click', function(event) {
 cartClose.forEach(function(closeBtn) {
   closeBtn.addEventListener('click', function(event) {
     event.preventDefault();
-    shoppingCart.style.right = "-100vw";
+    shoppingCart.classList.remove('open');
   });
 });
 
