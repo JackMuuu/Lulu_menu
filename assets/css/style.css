@@ -1175,12 +1175,21 @@ header.scrolled {
   font-size: 12px;
 }
 
+/* .our-menu .item-wrapper .item-left h5 {
+  position: relative;
+  display: inline-block;
+  padding-right: 14px;
+  max-width: 100%;
+} */
+
+
+
 .our-menu .item-wrapper .item-left h5::after,
 .lunch-time .item-wrapper .item-left h5::after,
 .chef-choise .item-wrapper .item-left h5::after {
   content: "";
   position: absolute;
-  width: 1000px;
+  width: 100%;
   border-bottom: 1px dotted #616f7d;
   bottom: 6px;
   left: 102%;
