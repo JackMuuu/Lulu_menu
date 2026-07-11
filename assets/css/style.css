@@ -649,14 +649,11 @@ header.scrolled {
   background-color: white;
   box-shadow: 7px 5px 15px -4px rgba(0, 0, 0, 0.75);
   z-index: 9;
-  
   transform: translateX(100%);
   transition: transform 0.5s ease-in-out;
 }
 .shopping-cart.open {
-
   transform: translateX(0);
-
 }
 
 
@@ -1255,25 +1252,26 @@ header.scrolled {
   width: 100%;
   border-bottom: 1px dotted #616f7d;
   bottom: 6px;
-  left: 102%;
+  left: 100%;
 } */
 
 
-our-menu .item-wrapper .item-left h5::after,
+.our-menu .item-wrapper .item-left h5::after,
 .lunch-time .item-wrapper .item-left h5::after,
 .chef-choise .item-wrapper .item-left h5::after {
   content: "";
-
   position: absolute;
-
-  top: 50%;
-
+  /* top: 50%;
   left: calc(100% + 12px);
-
   width: clamp(60px, 18vw, 220px);
+  border-bottom: 1px dotted #616f7d; */
+  width: 1000px;
 
   border-bottom: 1px dotted #616f7d;
 
+  bottom: 6px;
+
+  left: 102%;
   transform: translateY(-50%);
 }
 
@@ -2508,17 +2506,20 @@ footer p {
 .dish-detail-panel {
   position: fixed;
   top: 0;
-  right: -100vw;
+  right: 0;
   width: 100vw;
+  max-width: 100vw;
   height: 100vh;
   background: #fff;
   z-index: 9999;
   overflow-y: auto;
-  transition: right 0.5s ease-in-out;
+  overflow-x: hidden;
+  transform: translateX(100%);
+  transition: transform 0.5s ease-in-out;
 }
 
 .dish-detail-panel.open {
-  right: 0;
+  transform: translateX(0);
 }
 
 .dish-detail-header {
@@ -2542,6 +2543,7 @@ footer p {
   max-width: 980px;
   margin: 0 auto;
   padding: 20px 18px 60px;
+  box-sizing: border-box;
 }
 
 .dish-detail-image-wrapper {
