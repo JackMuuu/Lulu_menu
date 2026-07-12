@@ -844,6 +844,90 @@ header.scrolled {
   }
 }
 
+
+/* shopping cart minus and plus buttons */
+.qty-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 10px;
+}
+
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: #e5612f;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.qty-number {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #111;
+}
+
+/* shopping cart delete button */
+.cart-delete-icon:hover{
+    transform:rotate(90deg);
+    background:#d44d1e;
+}
+
+
+.cart-delete-icon {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5612f;
+  color: #fff;
+  text-decoration: none;
+  flex: 0 0 26px;
+}
+
+.cart-delete-icon i {
+  font-size: 13px;
+  line-height: 1;
+}
+
+
+/* shopping cart backdrop */
+.cart-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 9998;
+}
+
+.cart-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shopping-cart {
+  z-index: 9999;
+}
+
+
+
 /* shopping cart end */
 
 /* Header End */
@@ -1244,17 +1328,6 @@ header.scrolled {
 
 
 
-/* .our-menu .item-wrapper .item-left h5::after,
-.lunch-time .item-wrapper .item-left h5::after,
-.chef-choise .item-wrapper .item-left h5::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  border-bottom: 1px dotted #616f7d;
-  bottom: 6px;
-  left: 100%;
-} */
-
 
 .our-menu .item-wrapper .item-left h5::after,
 .lunch-time .item-wrapper .item-left h5::after,
@@ -1347,6 +1420,44 @@ header.scrolled {
 .slider-indicators-wrapper .slide-arrow.prev-arrow {
   left: 30px;
 }
+
+
+/* main menu ORDER button behavior */
+.menu-qty-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-qty-minus,
+.menu-qty-plus {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: #e5612f;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.menu-qty-number {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 600;
+  color: #111;
+}
+
+
+
+
+
+
 
 /* testimonial start */
 .testimonials {

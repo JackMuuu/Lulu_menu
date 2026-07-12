@@ -483,13 +483,12 @@ function renderCategory(shortKey, chineseName, items, fallback) {
     // right: order button
     const right = document.createElement('div');
     right.className = 'item-right pe-3';
+
     const btnWrap = document.createElement('div');
-    btnWrap.className = 'item-btn';
-    const a = document.createElement('a');
-    a.href = '#';
-    a.textContent = 'Order';
-    a.dataset.id = d._id || '';
-    btnWrap.appendChild(a);
+    btnWrap.className = 'item-btn dish-action-wrap';
+    btnWrap.dataset.dishActionFor = d._id;
+    btnWrap.innerHTML = buildDishActionHTML(d._id);
+
     right.appendChild(btnWrap);
 
     item.appendChild(left);
@@ -565,15 +564,43 @@ document.addEventListener('click', async function (e) {
       dishDetailEmpty.style.display = 'block';
     }
 
-    openDishDetail();
+    const origin = target.closest('#search-results') ? 'search' : 'main';
+    openDishDetail(origin);
   } catch (err) {
     console.error('Failed to load dish detail', err);
   }
 });
 
 
+// shopping cart minus and plus button click handler
+document.addEventListener('click', function (e) {
+  const minusBtn = e.target.closest('.qty-minus');
+  const plusBtn = e.target.closest('.qty-plus');
 
+  if (!minusBtn && !plusBtn) return;
 
+  const id = (minusBtn || plusBtn).dataset.id;
+  if (!id) return;
+
+  const item = cart.find(i => i._id === id);
+  if (!item) return;
+
+  if (plusBtn) {
+    item.quantity += 1;
+    renderCart();
+    return;
+  }
+
+  if (minusBtn) {
+    item.quantity -= 1;
+    if (item.quantity <= 0) {
+      const idx = cart.findIndex(i => i._id === id);
+      if (idx >= 0) cart.splice(idx, 1);
+    }
+    renderCart();
+    syncDishActionButtons(id);
+  }
+});
 
 
 
@@ -661,32 +688,14 @@ async function renderDailySpecials() {
       left.appendChild(txt);
 
       const right = document.createElement('div');
-      right.className = 'item-right';
-      
+      right.className = 'item-right pe-3';
 
-      // right: order button
-        const btnWrap = document.createElement('div');
-        btnWrap.className = 'item-btn';
+      const btnWrap = document.createElement('div');
+      btnWrap.className = 'item-btn dish-action-wrap';
+      btnWrap.dataset.dishActionFor = d._id;
+      btnWrap.innerHTML = buildDishActionHTML(d._id);
 
-        // ORDER anchor with inline styles (so it's always visible)
-        const a = document.createElement('a');
-        a.href = '#';
-        a.className = 'order-btn';
-        a.setAttribute('data-id', d._id || '');
-        a.textContent = 'Order';
-
-        // inline style to match requested look (primary color #e5612f)
-        a.style.textDecoration = 'none';
-        a.style.color = '#ffffff';
-        a.style.backgroundColor = '#e5612f';
-        a.style.padding = '6px 14px';
-        a.style.fontSize = '13px';
-        a.style.textTransform = 'uppercase';
-        a.style.borderRadius = '18px';
-        a.style.display = 'inline-block';
-
-        btnWrap.appendChild(a);
-        right.appendChild(btnWrap);
+      right.appendChild(btnWrap);
 
     
 
@@ -730,6 +739,32 @@ const searchBtnMain = document.getElementById("searchBtn");
 const searchInput = document.getElementById("search-input");
 const searchSubmitBtn = document.getElementById("search-submit-btn");
 const searchResults = document.getElementById("search-results");
+
+
+let dishDetailOrigin = 'main'; // 'main' or 'search'
+let lastSearchQuery = '';
+let lastSearchResultsData = [];
+
+
+function showSearchOverlayKeepResults() {
+  if (!searchCon) return;
+  searchCon.classList.remove('d-none');
+  requestAnimationFrame(() => searchCon.classList.add('show'));
+}
+
+function restoreSearchOverlayState() {
+  if (!searchCon) return;
+  searchCon.classList.remove('d-none');
+  requestAnimationFrame(() => searchCon.classList.add('show'));
+
+  if (searchInput) {
+    searchInput.value = lastSearchQuery;
+  }
+
+  if (searchResults) {
+    renderSearchResults(lastSearchResultsData);
+  }
+}
 
 function showSearchOverlay() {
   if (!searchCon) return;
@@ -803,7 +838,9 @@ async function performSearch(q) {
       return;
     }
     const data = await res.json();
-    renderSearchResults(data);
+    lastSearchQuery = query;
+    lastSearchResultsData = Array.isArray(data) ? data : [];
+    renderSearchResults(lastSearchResultsData);
   } catch (err) {
     console.error('Search error', err);
     searchResults.innerHTML = '<p class="text-danger">搜索时出错，请稍后再试</p>';
@@ -876,8 +913,10 @@ const dishDetailDescription = document.querySelector('.dish-detail-description')
 const dishDetailReviewsList = document.querySelector('.dish-detail-reviews-list');
 const dishDetailEmpty = document.querySelector('.dish-detail-empty');
 
-function openDishDetail() {
+
+function openDishDetail(origin = 'main') {
   if (!dishDetailPanel) return;
+  dishDetailOrigin = origin;
   dishDetailPanel.classList.add('open');
   document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
@@ -888,6 +927,10 @@ function closeDishDetail() {
   dishDetailPanel.classList.remove('open');
   document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
+
+  if (dishDetailOrigin === 'search') {
+    restoreSearchOverlayState();
+  }
 }
 
 dishDetailClose?.addEventListener('click', (e) => {
@@ -907,7 +950,47 @@ if (searchSubmitBtn) {
 
 
 
+// helper to keep number of orders in shopping cart and index.html the same
+function refreshDishActionButtons(id) {
+  const qty = getCartQty(id);
 
+  document.querySelectorAll(`[data-dish-action-for="${id}"]`).forEach(el => {
+    if (!qty) {
+      el.innerHTML = `
+        <a href="#" class="menu-order-btn" data-id="${id}">Order</a>
+      `;
+    } else {
+      el.innerHTML = `
+        <div class="menu-qty-wrap">
+          <button type="button" class="menu-qty-minus" data-id="${id}">−</button>
+          <span class="menu-qty-number">${qty}</span>
+          <button type="button" class="menu-qty-plus" data-id="${id}">+</button>
+        </div>
+      `;
+    }
+  });
+}
+
+function refreshAllDishActionButtons() {
+  document.querySelectorAll('[data-dish-action-for]').forEach(el => {
+    const id = el.dataset.dishActionFor;
+    const qty = getCartQty(id);
+
+    if (!qty) {
+      el.innerHTML = `
+        <a href="#" class="menu-order-btn" data-id="${id}">Order</a>
+      `;
+    } else {
+      el.innerHTML = `
+        <div class="menu-qty-wrap">
+          <button type="button" class="menu-qty-minus" data-id="${id}">−</button>
+          <span class="menu-qty-number">${qty}</span>
+          <button type="button" class="menu-qty-plus" data-id="${id}">+</button>
+        </div>
+      `;
+    }
+  });
+}
 
 
 
@@ -926,16 +1009,21 @@ const checkoutModal = document.getElementById('checkout-modal');
 const checkoutModalMessage = document.getElementById('checkout-modal-message');
 const checkoutModalDone = document.getElementById('checkout-modal-done');
 const checkoutModalBackdrop = document.getElementById('checkout-modal-backdrop');
+const cartBackdrop = document.querySelector('.cart-backdrop');
 
 // Open cart
 function openCart() {
   shoppingCart.classList.add('open');
+  cartBackdrop?.classList.add('show');
 }
 
 // Close cart
 function closeCart() {
   shoppingCart.classList.remove('open');
+  cartBackdrop?.classList.remove('show');
 }
+
+cartBackdrop?.addEventListener('click', closeCart);
 
 shoppingbtn?.addEventListener('click', e => {
   e.preventDefault();
@@ -1028,7 +1116,7 @@ checkoutBtn && checkoutBtn.addEventListener('click', async (e) => {
 
   const items = cart.map(item => ({
   dishId: item._id,
-  quantity: 1
+  quantity: item.quantity || 1
 }));
 
 openCheckoutModal('正在保存订单，请稍候…');
@@ -1054,8 +1142,8 @@ try {
 
   const orders = cart.map(item => ({
     name: item.name || '',
-    units: item.description || '',
-    price: 1,
+    discription: item.description || '',
+    quantity: item.quantity || 1,
     image_url: item.image || ''
   }));
 
@@ -1076,6 +1164,7 @@ try {
 
   cart.length = 0;
   renderCart();
+  refreshAllDishActionButtons();
 
   openCheckoutModal('下单成功 — 订单已保存并已发送邮件（点击 Done 关闭）');
 } catch (err) {
@@ -1088,6 +1177,48 @@ try {
 function escapeHtml(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+// helper function 
+function getCartItem(id) {
+  return cart.find(item => item._id === id);
+}
+
+function getCartQty(id) {
+  const item = getCartItem(id);
+  return item ? (item.quantity || 0) : 0;
+}
+
+function buildDishActionHTML(id) {
+  const qty = getCartQty(id);
+
+  if (!qty) {
+    return `
+    <a href="#"
+      class="menu-order-btn"
+      data-id="${id}">
+      ORDER
+    </a>
+    `;
+  }
+
+  return `
+    <div class="menu-qty-wrap">
+      <button type="button" class="menu-qty-minus" data-id="${id}">−</button>
+      <span class="menu-qty-number">${qty}</span>
+      <button type="button" class="menu-qty-plus" data-id="${id}">+</button>
+    </div>
+  `;
+}
+
+function syncDishActionButtons(id) {
+  document.querySelectorAll(`[data-dish-action-for="${id}"]`).forEach(el => {
+    el.innerHTML = buildDishActionHTML(id);
+  });
+}
+
+
+
+
 
 
 
@@ -1136,30 +1267,44 @@ function renderCart() {
     colInfo.appendChild(desc);
 
     // Quantity + Delete column
-    const colRight = document.createElement('div');
-    colRight.className = 'col-3 item-price d-flex align-items-center justify-content-end';
+    // const colRight = document.createElement('div');
+    // colRight.className = 'col-3 item-price d-flex align-items-center justify-content-end';
 
-    const qty = document.createElement('p');
-    qty.className = 'mb-0';
-    qty.textContent = 'x1';
-    qty.style.marginRight = '10px';
+    const colRight = document.createElement('div');
+    colRight.className = 'col-3 item-price d-flex align-items-center justify-content-end gap-2 flex-nowrap';
+
+    const qtyWrap = document.createElement('div');
+    qtyWrap.className = 'qty-wrap';
+
+    const minusBtn = document.createElement('button');
+    minusBtn.type = 'button';
+    minusBtn.className = 'qty-btn qty-minus';
+    minusBtn.dataset.id = item._id;
+    minusBtn.textContent = '−';
+
+    const qty = document.createElement('span');
+    qty.className = 'qty-number';
+    qty.textContent = String(item.quantity || 1);
+
+    const plusBtn = document.createElement('button');
+    plusBtn.type = 'button';
+    plusBtn.className = 'qty-btn qty-plus';
+    plusBtn.dataset.id = item._id;
+    plusBtn.textContent = '+';
+
+    qtyWrap.appendChild(minusBtn);
+    qtyWrap.appendChild(qty);
+    qtyWrap.appendChild(plusBtn);
 
     const del = document.createElement('a');
     del.href = '#';
-    del.className = 'cart-delete-btn';
+    del.className = 'cart-delete-btn cart-delete-icon';
     del.dataset.id = item._id;
-    del.textContent = '删除';
+    del.title = 'Delete';
+    del.setAttribute('aria-label', 'Delete item');
+    del.innerHTML = '<i class="fa fa-times"></i>';
 
-    // del.style.color = '#e5612f';
-    del.style.fontSize = '15px';
-    del.style.textDecoration = 'none';
-    del.style.color = '#ffffff';
-    del.style.backgroundColor = '#e5612f';
-    del.style.padding = '6px 14px';
-    del.style.borderRadius = '18px';
-    del.style.display = 'inline-block';
-
-    colRight.appendChild(qty);
+    colRight.appendChild(qtyWrap);
     colRight.appendChild(del);
 
     row.appendChild(colImg);
@@ -1174,10 +1319,12 @@ function renderCart() {
 async function addToCart(id) {
   if (!id) return;
 
-  // Prevent duplicates
-  if (cart.some(item => item._id === id)) {
-    showToast("菜品已存在于购物车中");
-    openCart();
+  const existing = getCartItem(id);
+  if (existing) {
+    existing.quantity += 1;
+    renderCart();
+    syncDishActionButtons(id);
+    showToast("已增加数量");
     return;
   }
 
@@ -1191,28 +1338,56 @@ async function addToCart(id) {
       _id: dish._id,
       name: dish.name,
       description: dish.description || '',
-      image: dish.image
+      image: dish.image,
+      quantity: 1
     });
 
     renderCart();
-    openCart();
+    
+    syncDishActionButtons(id);
     showToast("已加入购物车");
-
   } catch (err) {
     console.error(err);
   }
 }
 
-// Global ORDER button listener (menu + search)
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('.order-btn, .item-order-btn, .item-btn a');
-  if (!btn) return;
 
-  const id = btn.dataset.id;
-  if (!id) return;
+// helper for minus
+function decreaseCartQty(id) {
+  const item = getCartItem(id);
+  if (!item) return;
+
+  item.quantity -= 1;
+
+  if (item.quantity <= 0) {
+    const idx = cart.findIndex(i => i._id === id);
+    if (idx >= 0) cart.splice(idx, 1);
+  }
+
+  renderCart();
+
+  syncDishActionButtons(id);
+}
+
+// Global ORDER button listener (menu + search)
+document.addEventListener('click', function (e) {
+  const orderBtn = e.target.closest('.menu-order-btn');
+  const plusBtn = e.target.closest('.menu-qty-plus');
+  const minusBtn = e.target.closest('.menu-qty-minus');
+
+  if (!orderBtn && !plusBtn && !minusBtn) return;
 
   e.preventDefault();
-  addToCart(id);
+  e.stopPropagation();
+
+  const id = (orderBtn || plusBtn || minusBtn).dataset.id;
+  if (!id) return;
+
+  if (orderBtn || plusBtn) {
+    addToCart(id);
+  } else if (minusBtn) {
+    decreaseCartQty(id);
+  }
 });
 
 
@@ -1233,6 +1408,7 @@ document.addEventListener('click', function (e) {
     if (idx >= 0) {
       cart.splice(idx, 1);
       renderCart();
+      syncDishActionButtons(id);
       showToast('已从购物车移除');
     }
     return;
@@ -1249,26 +1425,26 @@ document.addEventListener('click', function (e) {
       cart.splice(idx, 1);
     }
     renderCart();
+    syncDishActionButtons(id);
     showToast('已从购物车移除');
   }, ANIM_MS);
 });
 
 // Close shopping cart when clicking outside of it
 document.addEventListener('click', function (e) {
-  // If cart is not open, do nothing
-  if (!shoppingCart || shoppingCart.style.right !== "0px") return;
+  if (!shoppingCart.classList.contains('open')) return;
 
-  // Check if click happened inside the cart
-  const isInsideCart = e.target.closest('.shopping-cart');
-
-  // Check if click was on shopping button (to prevent immediate close)
-  const isCartButton =
+  if (
+    e.target.closest('.shopping-cart') ||
     e.target.closest('#shoppingbutton') ||
-    e.target.closest('#shoppingbuttonMobile');
-
-  if (!isInsideCart && !isCartButton) {
-    closeCart();
+    e.target.closest('#shoppingbuttonMobile') ||
+    e.target.closest('.qty-btn') ||
+    e.target.closest('.cart-delete-btn')
+  ) {
+    return;
   }
+
+  closeCart();
 });
 
 // Simple toast popup
