@@ -1193,7 +1193,7 @@ function buildDishActionHTML(id) {
 
   if (!qty) {
     return `
-    <a href="#"
+    <a herf=# 
       class="menu-order-btn"
       data-id="${id}">
       ORDER

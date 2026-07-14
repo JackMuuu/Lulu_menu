@@ -1385,15 +1385,31 @@ header.scrolled {
   font-size: 18px;
 }
 
-.our-menu .item-wrapper .item-right .item-btn a {
+/* for daily special section and normal dish lists ORDER button style */
+.menu-order-btn {
   text-decoration: none;
-  color: var(--text-color-white);
+  color: var(--text-color-white) !important;
   background-color: var(--primary-color);
   padding: 4px 12px;
   font-size: 14px;
   text-transform: uppercase;
   border-radius: 20px;
+  display: inline-block;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
+
+.menu-order-btn:hover {
+  background-color: #d44d1e;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+/* Daily Special quantity number color to be white */
+.chef-choise .menu-qty-number {
+    color: #fff;
+}
+
 
 .our-menu .item-wrapper .item-right .item-btn {
   margin-top: 4px;
