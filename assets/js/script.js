@@ -588,6 +588,7 @@ document.addEventListener('click', function (e) {
   if (plusBtn) {
     item.quantity += 1;
     renderCart();
+    updateCartBadge();
     return;
   }
 
@@ -599,6 +600,7 @@ document.addEventListener('click', function (e) {
     }
     renderCart();
     syncDishActionButtons(id);
+    updateCartBadge();
   }
 });
 
@@ -1165,7 +1167,7 @@ try {
   cart.length = 0;
   renderCart();
   refreshAllDishActionButtons();
-
+  updateCartBadge();
   openCheckoutModal('下单成功 — 订单已保存并已发送邮件（点击 Done 关闭）');
 } catch (err) {
   console.error('Checkout error', err);
@@ -1209,6 +1211,27 @@ function buildDishActionHTML(id) {
     </div>
   `;
 }
+
+
+// helper for updating shopping cart badge number
+const cartBadges = document.querySelectorAll('.cart-badge');
+
+function updateCartBadge() {
+  const totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+  cartBadges.forEach((badge) => {
+    if (!badge) return;
+
+    if (totalQty > 0) {
+      badge.textContent = totalQty;
+      badge.classList.remove('d-none');
+    } else {
+      badge.textContent = '0';
+      badge.classList.add('d-none');
+    }
+  });
+}
+
 
 function syncDishActionButtons(id) {
   document.querySelectorAll(`[data-dish-action-for="${id}"]`).forEach(el => {
@@ -1324,6 +1347,7 @@ async function addToCart(id) {
     existing.quantity += 1;
     renderCart();
     syncDishActionButtons(id);
+    updateCartBadge();
     showToast("已增加数量");
     return;
   }
@@ -1345,6 +1369,7 @@ async function addToCart(id) {
     renderCart();
     
     syncDishActionButtons(id);
+    updateCartBadge();
     showToast("已加入购物车");
   } catch (err) {
     console.error(err);
@@ -1367,6 +1392,7 @@ function decreaseCartQty(id) {
   renderCart();
 
   syncDishActionButtons(id);
+  updateCartBadge();
 }
 
 // Global ORDER button listener (menu + search)
@@ -1409,6 +1435,7 @@ document.addEventListener('click', function (e) {
       cart.splice(idx, 1);
       renderCart();
       syncDishActionButtons(id);
+      updateCartBadge();
       showToast('已从购物车移除');
     }
     return;
@@ -1426,6 +1453,7 @@ document.addEventListener('click', function (e) {
     }
     renderCart();
     syncDishActionButtons(id);
+    updateCartBadge();
     showToast('已从购物车移除');
   }, ANIM_MS);
 });
