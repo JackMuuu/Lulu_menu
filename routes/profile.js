@@ -6,6 +6,5 @@ const profileController = require('../controllers/profileController');
 
 router.get('/me', requireAuth, profileController.getProfile);
 router.get('/orders', requireAuth, profileController.getOrderHistory);
-router.get('/reviews', requireAuth, profileController.getReviewHistory);
 
 module.exports = router;

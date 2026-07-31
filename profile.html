@@ -452,6 +452,39 @@
       });
 
 
+      reviewsList.addEventListener('click', async (e) => {
+
+        const btn = e.target.closest('.review-delete-btn');
+        if (!btn) return;
+
+        const ok = confirm('Delete this review?');
+        if (!ok) return;
+
+        const reviewId = btn.dataset.reviewId;
+
+        try {
+
+          const res = await fetch(`/api/reviews/${reviewId}`, {
+            method:'DELETE',
+            credentials:'include'
+          });
+
+          const data = await res.json();
+
+          if(!res.ok){
+            throw new Error(data.error);
+          }
+
+          loadProfile();
+
+        } catch(err){
+
+          alert(err.message);
+
+        }
+
+      });
+
       function renderOrders(orders) {
         ordersList.innerHTML = '';
 
@@ -529,14 +562,59 @@
         reviewsEmpty.classList.add('hidden');
 
         reviews.forEach((review) => {
+          const dish = review.dish || {};
+          const images = Array.isArray(review.images)
+            ? review.images
+            : [];
+
+          const stars =
+            '★'.repeat(review.rating || 0) +
+            '☆'.repeat(5 - (review.rating || 0));
+
           const el = document.createElement('div');
           el.className = 'profile-item';
+
           el.innerHTML = `
-            <h5>Review</h5>
-            <p class="profile-muted">${formatDate(review.createdAt)}</p>
-            <p>Rating: ${review.rating || '-'} / 5</p>
-            <p>${review.comment || ''}</p>
+            <div class="d-flex justify-content-between align-items-start">
+
+              <div>
+
+                <h5>${dish.name || 'Dish'}</h5>
+
+                <p class="profile-muted">
+                  ${formatDate(review.createdAt)}
+                </p>
+
+                <div class="review-stars">
+                  ${stars}
+                </div>
+
+                <p>${review.comment || ''}</p>
+
+                ${
+                  images.length
+                    ? `
+                      <div class="review-images">
+                        ${images
+                          .map(img => `<img src="${img}" alt="">`)
+                          .join('')}
+                      </div>
+                    `
+                    : ''
+                }
+
+              </div>
+
+              <button
+                type="button"
+                class="review-delete-btn"
+                data-review-id="${review._id}">
+                <i class="fa fa-times"></i>
+              </button>
+
+            </div>
           `;
+
           reviewsList.appendChild(el);
         });
       }
@@ -560,7 +638,7 @@
 
           const [ordersRes, reviewsRes] = await Promise.all([
             fetch('/api/profile/orders', { credentials: 'include' }),
-            fetch('/api/profile/reviews', { credentials: 'include' })
+            fetch('/api/reviews/mine', { credentials: 'include' })
           ]);
 
           const ordersData = await ordersRes.json();

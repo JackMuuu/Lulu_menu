@@ -556,6 +556,19 @@ document.addEventListener('click', async function (e) {
       dishDetailDescription.textContent = dish.description || '';
     }
 
+    if (reviewSummaryScore && typeof dish.ratingAverage !== 'undefined') {
+      reviewSummaryScore.textContent = Number(dish.ratingAverage || 0).toFixed(1);
+    }
+
+    if (reviewSummaryStars) {
+      reviewSummaryStars.innerHTML = renderStarIcons(dish.ratingAverage || 0);
+    }
+
+    if (reviewSummaryCount) {
+      reviewSummaryCount.textContent =
+        `${dish.ratingCount || 0} review${(dish.ratingCount || 0) === 1 ? '' : 's'}`;
+    }
+
     if (dishDetailReviewsList) {
       dishDetailReviewsList.innerHTML = '';
     }
@@ -565,7 +578,7 @@ document.addEventListener('click', async function (e) {
     }
 
     const origin = target.closest('#search-results') ? 'search' : 'main';
-    openDishDetail(origin);
+    openDishDetail(origin,dishId);
   } catch (err) {
     console.error('Failed to load dish detail', err);
   }
@@ -589,6 +602,7 @@ document.addEventListener('click', function (e) {
     item.quantity += 1;
     renderCart();
     updateCartBadge();
+    saveCart();
     return;
   }
 
@@ -601,6 +615,7 @@ document.addEventListener('click', function (e) {
     renderCart();
     syncDishActionButtons(id);
     updateCartBadge();
+    saveCart();
   }
 });
 
@@ -915,17 +930,100 @@ const dishDetailDescription = document.querySelector('.dish-detail-description')
 const dishDetailReviewsList = document.querySelector('.dish-detail-reviews-list');
 const dishDetailEmpty = document.querySelector('.dish-detail-empty');
 
+const reviewSortSelect = document.querySelector('.review-sort-select');
+const reviewRatingFilter = document.querySelector('.review-rating-filter');
+const reviewPagination = document.querySelector('.dish-review-pagination');
+const reviewForm = document.querySelector('.dish-review-form');
+const reviewRatingInputs = document.querySelectorAll('input[name="review-rating"]');
+const reviewCommentInput = document.querySelector('.review-comment-input');
+const reviewImagesInput = document.querySelector('.review-images-input');
+const reviewImagePreview = document.querySelector('.review-image-preview');
+const reviewAuthHint = document.querySelector('.review-auth-hint');
+const reviewSummaryScore = document.querySelector('.dish-rating-score');
+const reviewSummaryStars = document.querySelector('.dish-rating-stars');
+const reviewSummaryCount = document.querySelector('.dish-rating-count');
 
-function openDishDetail(origin = 'main') {
+let currentDishId = '';
+let currentReviewPage = 1;
+let currentReviewSort = 'newest';
+let currentReviewRatingFilter = '';
+let currentLoggedInUserId = null;
+
+// delete button helper
+async function initCurrentUser() {
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) {
+      currentLoggedInUserId = null;
+      return;
+    }
+    const data = await res.json();
+
+    currentLoggedInUserId = data.user?.id || null;
+  } catch {
+    currentLoggedInUserId = null;
+  }
+}
+// delete button helper
+
+function canDeleteReview(review) {
+  const ownerId = review.user?._id || review.user;
+  return (
+    !!currentLoggedInUserId &&
+    !!ownerId &&
+    String(ownerId) === String(currentLoggedInUserId)
+  );
+}
+
+document.addEventListener('DOMContentLoaded', initCurrentUser);
+
+
+function renderStarIcons(value = 0) {
+  const filled = Math.max(0, Math.min(5, Math.round(value)));
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    html += `<i class="fa fa-star${i <= filled ? '' : '-o'}"></i>`;
+  }
+  return html;
+}
+
+function updateDishRatingSummary(stats) {
+  const average = Number(stats?.averageRating || 0);
+  const count = Number(stats?.reviewCount || 0);
+
+  if (reviewSummaryScore) {
+    reviewSummaryScore.textContent = count ? average.toFixed(1) : '0.0';
+  }
+  if (reviewSummaryStars) {
+    reviewSummaryStars.innerHTML = renderStarIcons(average);
+  }
+  if (reviewSummaryCount) {
+    reviewSummaryCount.textContent = `${count} review${count === 1 ? '' : 's'}`;
+  }
+}
+
+async function openDishDetail(origin = 'main', dishId = '') {
   if (!dishDetailPanel) return;
+
   dishDetailOrigin = origin;
+  currentDishId = dishId || currentDishId;
+  currentReviewPage = 1;
+
   dishDetailPanel.classList.add('open');
   document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
+
+  await initCurrentUser();
+  await updateReviewAuthHint();
+
+  if (currentDishId) {
+    await loadDishReviews(currentDishId, 1);
+  }
 }
 
 function closeDishDetail() {
   if (!dishDetailPanel) return;
+
   dishDetailPanel.classList.remove('open');
   document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
@@ -938,6 +1036,302 @@ function closeDishDetail() {
 dishDetailClose?.addEventListener('click', (e) => {
   e.preventDefault();
   closeDishDetail();
+});
+
+async function updateReviewAuthHint() {
+  if (!reviewAuthHint || !reviewForm) return;
+
+  try {
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      currentLoggedInUserId = meData.user?.id || null;
+
+      reviewAuthHint.textContent = 'You are signed in and can leave a review.';
+      reviewForm.style.opacity = '1';
+      reviewForm.style.pointerEvents = 'auto';
+      return;
+    }
+  } catch (err) {}
+
+  currentLoggedInUserId = null;
+  reviewAuthHint.textContent = 'Please sign in before posting a review.';
+  reviewForm.style.opacity = '0.65';
+  reviewForm.style.pointerEvents = 'auto';
+}
+
+function getReviewFormRating() {
+  const checked = document.querySelector('input[name="review-rating"]:checked');
+  return checked ? Number(checked.value) : 0;
+}
+
+function clearReviewImagePreview() {
+  if (reviewImagePreview) reviewImagePreview.innerHTML = '';
+}
+
+function renderReviewImagePreview(files) {
+  if (!reviewImagePreview) return;
+  reviewImagePreview.innerHTML = '';
+
+  files.slice(0, 3).forEach((file) => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.alt = file.name || 'review image';
+    reviewImagePreview.appendChild(img);
+  });
+}
+
+async function loadDishReviews(dishId, page = 1) {
+  if (!dishId) return;
+
+  currentReviewPage = page;
+
+  const params = new URLSearchParams();
+  params.set('page', String(page));
+  params.set('limit', '10');
+  params.set('sort', currentReviewSort);
+  if (currentReviewRatingFilter) params.set('rating', currentReviewRatingFilter);
+
+  try {
+    const res = await fetch(`/api/reviews/dish/${dishId}?${params.toString()}`, {
+      credentials: 'include',
+    });
+
+    const data = await res.json();
+    
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to load reviews');
+    }
+
+    updateDishRatingSummary(data.stats);
+    renderReviewList(data.reviews || []);
+    renderReviewPagination(data.page, data.totalPages);
+  } catch (err) {
+    console.error(err);
+    if (dishDetailReviewsList) {
+      dishDetailReviewsList.innerHTML = '<p class="muted">Unable to load reviews</p>';
+    }
+  }
+}
+
+function renderReviewList(reviews) {
+  if (!dishDetailReviewsList) return;
+
+  if (!reviews.length) {
+    dishDetailReviewsList.innerHTML = '<p class="muted">No reviews yet.</p>';
+    return;
+  }
+
+  dishDetailReviewsList.innerHTML = reviews
+    .map((review) => {
+      const userName = review.user?.username || 'Guest';
+      const avatar =
+        review.user?.avatar ||
+        'https://res.cloudinary.com/dhajpkcjc/image/upload/v1770945786/food_placeholder_lj4kwj.png';
+
+      const stars = renderStarIcons(review.rating || 0);
+      const images = Array.isArray(review.images) ? review.images : [];
+
+      console.log('Current user:', currentLoggedInUserId);
+      console.log('Review owner:', review.user?._id);
+      console.log('Can delete:', canDeleteReview(review));
+      const deleteButton = canDeleteReview(review)
+      ? `
+          <button
+            class="review-delete-btn"
+            data-review-id="${review._id}"
+            type="button"
+            aria-label="Delete review"
+            title="Delete review">×</button>
+        `
+      : '';
+
+      return `
+        <div class="review-item">
+          <div class="review-item-top">
+            <div class="review-user">
+              <img src="${avatar}" alt="${escapeHTML(userName)}" />
+              <div>
+                <div><strong>${escapeHTML(userName)}</strong></div>
+                <div class="review-meta">${new Date(review.createdAt).toLocaleString()}</div>
+              </div>
+            </div>
+
+            <div class="review-top-right">
+              <div class="review-stars">${stars}</div>
+              ${deleteButton}
+            </div>
+          </div>
+
+          <p class="review-comment">${escapeHTML(review.comment || '')}</p>
+
+          ${
+            images.length
+              ? `<div class="review-images">${images.map(src => `<img src="${src}" alt="review image">`).join('')}</div>`
+              : ''
+          }
+        </div>
+      `;
+    })
+    .join('');
+}
+
+
+function renderReviewPagination(page, totalPages) {
+  if (!reviewPagination) return;
+
+  if (totalPages <= 1) {
+    reviewPagination.innerHTML = '';
+    return;
+  }
+
+  const buttons = [];
+
+  buttons.push(
+    `<button type="button" class="review-page-btn" data-page="${Math.max(1, page - 1)}" ${page <= 1 ? 'disabled' : ''}>Prev</button>`
+  );
+
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, page + 2);
+
+  for (let p = start; p <= end; p++) {
+    buttons.push(
+      `<button type="button" class="review-page-btn ${p === page ? 'active' : ''}" data-page="${p}">${p}</button>`
+    );
+  }
+
+  buttons.push(
+    `<button type="button" class="review-page-btn" data-page="${Math.min(totalPages, page + 1)}" ${page >= totalPages ? 'disabled' : ''}>Next</button>`
+  );
+
+  reviewPagination.innerHTML = buttons.join('');
+}
+
+
+// event listener for dish detail page review
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.review-delete-btn');
+  if (!btn) return;
+
+  e.preventDefault();
+
+  const reviewId = btn.dataset.reviewId;
+  if (!reviewId) return;
+
+  const ok = confirm('Delete this review?');
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`/api/reviews/${reviewId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to delete review');
+    }
+
+    if (currentDishId) {
+      await loadDishReviews(currentDishId, currentReviewPage || 1);
+    }
+
+    if (profileReviewsListEl) {
+      await loadMyReviews();
+    }
+  } catch (err) {
+    alert(err.message || 'Could not delete review');
+  }
+});
+
+
+
+reviewSortSelect?.addEventListener('change', async () => {
+  currentReviewSort = reviewSortSelect.value;
+  currentReviewPage = 1;
+  if (currentDishId) await loadDishReviews(currentDishId, 1);
+});
+
+reviewRatingFilter?.addEventListener('change', async () => {
+  currentReviewRatingFilter = reviewRatingFilter.value;
+  currentReviewPage = 1;
+  if (currentDishId) await loadDishReviews(currentDishId, 1);
+});
+
+reviewPagination?.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.review-page-btn');
+  if (!btn || btn.disabled) return;
+
+  const page = Number(btn.dataset.page);
+  if (!page || !currentDishId) return;
+
+  await loadDishReviews(currentDishId, page);
+});
+
+reviewImagesInput?.addEventListener('change', (e) => {
+  const files = Array.from(e.target.files || []).slice(0, 3);
+  if ((e.target.files || []).length > 3) {
+    alert('You can upload up to 3 images only.');
+  }
+  renderReviewImagePreview(files);
+});
+
+reviewForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!currentDishId) return;
+
+  const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+  if (!meRes.ok) {
+    window.location.href = '/login.html';
+    return;
+  }
+
+  const rating = getReviewFormRating();
+  const comment = String(reviewCommentInput?.value || '').trim();
+  const files = Array.from(reviewImagesInput?.files || []).slice(0, 3);
+
+  if (!rating) {
+    alert('Please choose a star rating.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('dishId', currentDishId);
+  formData.append('rating', String(rating));
+  formData.append('comment', comment);
+
+  files.forEach((file) => {
+    formData.append('images', file);
+  });
+
+  try {
+    const res = await fetch('/api/reviews', {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to submit review');
+    }
+
+    reviewForm.reset();
+    clearReviewImagePreview();
+    currentReviewPage = 1;
+
+    if (data.stats) {
+      updateDishRatingSummary(data.stats);
+    }
+
+    await loadDishReviews(currentDishId, 1);
+  } catch (err) {
+    alert(err.message || 'Could not submit review');
+  }
 });
 
 
@@ -1002,7 +1396,25 @@ function refreshAllDishActionButtons() {
 
 
 // ====================== SHOPPING CART ======================
-const cart = [];
+
+// store cart info in localStorage
+const CART_STORAGE_KEY = 'menu_cart';
+
+function loadCart() {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    console.warn('Failed to load cart:', err);
+    return [];
+  }
+}
+
+function saveCart() {
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+}
+
+let cart = loadCart();
 
 const shoppingCartBody = document.querySelector('.shopping-cart-body');
 const continueBtn = document.querySelector('.footer-shopping a');
@@ -1024,6 +1436,17 @@ function closeCart() {
   shoppingCart.classList.remove('open');
   cartBackdrop?.classList.remove('show');
 }
+
+// That way, when the page opens again after login, the shopping cart panel, the badge, and the main page buttons all rebuild from the saved cart.
+function restoreCartUI() {
+  renderCart();
+  updateCartBadge();
+  refreshAllDishActionButtons();
+}
+
+document.addEventListener('DOMContentLoaded', restoreCartUI);
+
+
 
 cartBackdrop?.addEventListener('click', closeCart);
 
@@ -1144,7 +1567,7 @@ try {
 
   const orders = cart.map(item => ({
     name: item.name || '',
-    discription: item.description || '',
+    description: item.description || '',
     quantity: item.quantity || 1,
     image_url: item.image || ''
   }));
@@ -1168,6 +1591,7 @@ try {
   renderCart();
   refreshAllDishActionButtons();
   updateCartBadge();
+  saveCart();
   openCheckoutModal('下单成功 — 订单已保存并已发送邮件（点击 Done 关闭）');
 } catch (err) {
   console.error('Checkout error', err);
@@ -1195,7 +1619,7 @@ function buildDishActionHTML(id) {
 
   if (!qty) {
     return `
-    <a herf=# 
+    <a herf="#" 
       class="menu-order-btn"
       data-id="${id}">
       ORDER
@@ -1348,6 +1772,7 @@ async function addToCart(id) {
     renderCart();
     syncDishActionButtons(id);
     updateCartBadge();
+    saveCart();
     showToast("已增加数量");
     return;
   }
@@ -1370,6 +1795,7 @@ async function addToCart(id) {
     
     syncDishActionButtons(id);
     updateCartBadge();
+    saveCart();
     showToast("已加入购物车");
   } catch (err) {
     console.error(err);
@@ -1393,6 +1819,7 @@ function decreaseCartQty(id) {
 
   syncDishActionButtons(id);
   updateCartBadge();
+  saveCart();
 }
 
 // Global ORDER button listener (menu + search)
@@ -1436,6 +1863,7 @@ document.addEventListener('click', function (e) {
       renderCart();
       syncDishActionButtons(id);
       updateCartBadge();
+      saveCart();
       showToast('已从购物车移除');
     }
     return;
@@ -1454,6 +1882,7 @@ document.addEventListener('click', function (e) {
     renderCart();
     syncDishActionButtons(id);
     updateCartBadge();
+    saveCart();
     showToast('已从购物车移除');
   }, ANIM_MS);
 });
@@ -1491,3 +1920,6 @@ function showToast(message) {
 }
 
 
+
+// ====================== PROFILE REVIEWS ======================
+// this section is rendered in profile.html script section

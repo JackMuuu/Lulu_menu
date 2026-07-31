@@ -56,6 +56,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(attachUser);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Static files
 app.use(express.static(path.join(__dirname)));

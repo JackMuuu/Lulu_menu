@@ -25,15 +25,3 @@ exports.getOrderHistory = async (req, res, next) => {
     next(err);
   }
 };
-
-exports.getReviewHistory = async (req, res, next) => {
-  try {
-    const reviews = await Review.find({ user: req.user._id })
-      .sort({ createdAt: -1 })
-      .lean();
-
-    return res.json({ ok: true, reviews });
-  } catch (err) {
-    next(err);
-  }
-};

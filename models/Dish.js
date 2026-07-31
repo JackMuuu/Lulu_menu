@@ -7,7 +7,9 @@ const dishSchema = new mongoose.Schema({
   category: { type: String, enum: ['热菜','凉菜','汤品','主食','甜品','饮品', '特别'], required: true, index: true },
   image: { type: String, default: '' },        // secure_url from Cloudinary
   imagePublicId: { type: String, default: ''}, // Cloudinary public_id (for deletion)
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  ratingAverage: {type: Number,default: 0,},
+  ratingCount: {type: Number,default: 0,}
 });
 
 dishSchema.index({ name: 'text', description: 'text' });

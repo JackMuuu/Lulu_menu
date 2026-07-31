@@ -208,25 +208,84 @@
     <!-- dish detail panel -->
     <div class="dish-detail-panel">
       <div class="dish-detail-header">
-        <i class="fa fa-close dish-detail-close"></i>
+        <a href="#" class="dish-detail-close" aria-label="Close dish detail">
+          <i class="fa fa-times"></i>
+        </a>
       </div>
 
       <div class="dish-detail-body">
         <div class="dish-detail-image-wrapper">
-          <img class="dish-detail-image" src="" alt="Dish image">
+          <img class="dish-detail-image" src="" alt="Dish image" />
         </div>
 
         <div class="dish-detail-content">
           <h2 class="dish-detail-name"></h2>
-          <p class="dish-detail-description"></p>
-        </div>
 
-        <div class="dish-detail-reviews-card">
-          <h3>Reviews</h3>
-          <div class="dish-detail-reviews-list">
-            <!-- empty for now -->
+          <div class="dish-detail-rating-summary">
+            <div class="dish-detail-rating-left">
+              <div class="dish-rating-score">0.0</div>
+              <div class="dish-rating-stars"></div>
+            </div>
+            <div class="dish-rating-count">0 reviews</div>
           </div>
-          <p class="dish-detail-empty">No reviews yet.</p>
+
+          <p class="dish-detail-description"></p>
+
+          <div class="dish-review-card">
+            <div class="dish-review-toolbar">
+              <select class="review-sort-select">
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="highest">Highest rating</option>
+                <option value="lowest">Lowest rating</option>
+              </select>
+
+              <select class="review-rating-filter">
+                <option value="">All ratings</option>
+                <option value="5">5 stars</option>
+                <option value="4">4 stars</option>
+                <option value="3">3 stars</option>
+                <option value="2">2 stars</option>
+                <option value="1">1 star</option>
+              </select>
+            </div>
+
+            <div class="dish-detail-reviews-list"></div>
+            <div class="dish-review-pagination"></div>
+          </div>
+
+          <div class="dish-review-form-card">
+            <h3>Leave a review</h3>
+            <p class="review-auth-hint">Please sign in before posting a review.</p>
+
+            <form class="dish-review-form">
+              <div class="review-stars-input">
+                <label><input type="radio" name="review-rating" value="5" required /> ★★★★★</label>
+                <label><input type="radio" name="review-rating" value="4" /> ★★★★☆</label>
+                <label><input type="radio" name="review-rating" value="3" /> ★★★☆☆</label>
+                <label><input type="radio" name="review-rating" value="2" /> ★★☆☆☆</label>
+                <label><input type="radio" name="review-rating" value="1" /> ★☆☆☆☆</label>
+              </div>
+
+              <textarea
+                class="review-comment-input"
+                placeholder="Write your comment..."
+                rows="4"
+                required
+              ></textarea>
+
+              <input
+                type="file"
+                class="review-images-input"
+                accept="image/*"
+                multiple
+              />
+
+              <div class="review-image-preview"></div>
+
+              <button type="submit" class="review-submit-btn">Post review</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
